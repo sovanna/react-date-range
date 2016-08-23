@@ -117,8 +117,8 @@ DayCell.defaultProps = {
 }
 
 DayCell.propTypes = {
-  isStartEdge : PropTypes.object,
-  isEndEdge   : PropTypes.object,
+  isStartEdge : PropTypes.bool,
+  isEndEdge   : PropTypes.bool,
   isToday     : PropTypes.bool,
   dayMoment   : PropTypes.object.isRequired,
   onSelect    : PropTypes.func,
