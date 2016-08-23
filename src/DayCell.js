@@ -1,8 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import classnames from 'classnames';
 
-import { defaultClasses } from './styles.js';
-
 class DayCell extends Component {
 
   constructor(props, context) {
@@ -52,7 +50,7 @@ class DayCell extends Component {
 
   getStateStyles() {
     const { hover, active } = this.state;
-    const { isSelected, isInRange, isPassive, isStartEdge, isEndEdge, dayMoment, isToday } = this.props;
+    const { isSelected, isInRange, isPassive, isStartEdge, isEndEdge, isToday } = this.props;
     const { styles } = this;
 
     const hoverStyle    = hover ? styles['DayHover'] : {};
@@ -119,6 +117,9 @@ DayCell.defaultProps = {
 }
 
 DayCell.propTypes = {
+  isStartEdge : PropTypes.object,
+  isEndEdge   : PropTypes.object,
+  isToday     : PropTypes.bool,
   dayMoment   : PropTypes.object.isRequired,
   onSelect    : PropTypes.func,
   isSelected  : PropTypes.bool,

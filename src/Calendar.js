@@ -41,11 +41,15 @@ class Calendar extends Component {
     const state = {
       date,
       shownDate : (range && range['endDate'] || date).clone().add(offset, 'months'),
-      firstDayOfWeek: (firstDayOfWeek || moment.localeData().firstDayOfWeek()),
+      firstDayOfWeek: (firstDayOfWeek || moment.localeData().firstDayOfWeek())
     }
 
     this.state  = state;
     this.styles = getTheme(theme);
+
+    this.handleSelect = this.handleSelect.bind(this);
+    this.handleClickChangeMonthLeft = this.handleClickChangeMonthLeft.bind(this);
+    this.handleClickChangeMonthRight = this.handleClickChangeMonthRight.bind(this);
   }
 
   componentDidMount() {
@@ -63,13 +67,20 @@ class Calendar extends Component {
 
   handleSelect(newDate) {
     const { link, onChange } = this.props;
-    const { date } = this.state;
 
     onChange && onChange(newDate, Calendar);
 
     if (!link) {
       this.setState({ date : newDate });
     }
+  }
+
+  handleClickChangeMonthLeft(event) {
+    this.changeMonth(-1, event);
+  }
+
+  handleClickChangeMonthRight(event) {
+    this.changeMonth(+1, event);
   }
 
   changeMonth(direction, event) {
@@ -80,7 +91,6 @@ class Calendar extends Component {
       return linkCB(direction);
     }
 
-    const current  = this.state.shownDate.month();
     const newMonth = this.state.shownDate.clone().add(direction, 'months');
 
     this.setState({
@@ -89,33 +99,36 @@ class Calendar extends Component {
   }
 
   renderMonthAndYear(classes) {
-    const shownDate       = this.getShownDate();
-    const month           = moment.months(shownDate.month());
-    const year            = shownDate.year();
-    const { styles }      = this;
+    const shownDate = this.getShownDate();
+    const month = moment.months(shownDate.month());
+    const year = shownDate.year();
+
+    const { styles } = this;
     const { onlyClasses } = this.props;
 
     return (
-      <div style={onlyClasses ? undefined : styles['MonthAndYear']} className={classes.monthAndYearWrapper}>
+      <div style={onlyClasses ? null : styles['MonthAndYear']} className={classes.monthAndYearWrapper}>
         <button
-          style={onlyClasses ? undefined : { ...styles['MonthButton'], float : 'left' }}
-          className={classes.prevButton}
-          onClick={this.changeMonth.bind(this, -1)}>
+            style={onlyClasses ? undefined : { ...styles['MonthButton'], float : 'left' }}
+            className={classes.prevButton}
+            onClick={this.handleClickChangeMonthLeft}
+        >
           <i style={onlyClasses ? undefined : { ...styles['MonthArrow'], ...styles['MonthArrowPrev'] }}></i>
         </button>
         <span>
           <span className={classes.month}>{month}</span>
-          <span className={classes.monthAndYearDivider}> - </span>
+          <span className={classes.monthAndYearDivider}>{' - '}</span>
           <span className={classes.year}>{year}</span>
         </span>
         <button
-          style={onlyClasses ? undefined : { ...styles['MonthButton'], float : 'right' }}
-          className={classes.nextButton}
-          onClick={this.changeMonth.bind(this, +1)}>
+            style={onlyClasses ? undefined : { ...styles['MonthButton'], float : 'right' }}
+            className={classes.nextButton}
+            onClick={this.handleClickChangeMonthRight}
+        >
           <i style={onlyClasses ? undefined : { ...styles['MonthArrow'], ...styles['MonthArrowNext'] }}></i>
         </button>
       </div>
-    )
+    );
   }
 
   renderWeekdays(classes) {
@@ -150,11 +163,9 @@ class Calendar extends Component {
     const startOfMonth             = shownDate.clone().startOf('month').isoWeekday();
 
     const lastMonth                = shownDate.clone().month(monthNumber - 1);
-    const lastMonthNumber          = lastMonth.month();
     const lastMonthDayCount        = lastMonth.daysInMonth();
 
     const nextMonth                = shownDate.clone().month(monthNumber + 1);
-    const nextMonthNumber          = nextMonth.month();
 
     const days                     = [];
 
@@ -191,18 +202,18 @@ class Calendar extends Component {
 
       return (
         <DayCell
-          onSelect={ this.handleSelect.bind(this) }
-          { ...data }
-          theme={ styles }
-          isStartEdge = { isStartEdge }
-          isEndEdge = { isEndEdge }
-          isSelected={ isSelected || isEdge }
-          isInRange={ isInRange }
-          isToday={ isToday }
-          key={ index }
-          isPassive = { isPassive || isOutsideMinMax }
-          onlyClasses = { onlyClasses }
-          classNames = { classes }
+            onSelect={this.handleSelect}
+            {...data}
+            theme={styles}
+            isStartEdge={isStartEdge}
+            isEndEdge={isEndEdge}
+            isSelected={isSelected || isEdge}
+            isInRange={isInRange}
+            isToday={isToday}
+            key={index}
+            isPassive={isPassive || isOutsideMinMax}
+            onlyClasses={onlyClasses}
+            classNames={classes}
         />
       );
     })
@@ -216,9 +227,9 @@ class Calendar extends Component {
 
     return (
       <div style={onlyClasses ? undefined : { ...styles['Calendar'], ...this.props.style }} className={classes.calendar}>
-        <div className={classes.monthAndYear}>{ this.renderMonthAndYear(classes) }</div>
-        <div className={classes.weekDays}>{ this.renderWeekdays(classes) }</div>
-        <div className={classes.days}>{ this.renderDays(classes) }</div>
+        <div className={classes.monthAndYear}>{this.renderMonthAndYear(classes)}</div>
+        <div className={classes.weekDays}>{this.renderWeekdays(classes)}</div>
+        <div className={classes.days}>{this.renderDays(classes)}</div>
       </div>
     )
   }
@@ -232,26 +243,28 @@ Calendar.defaultProps = {
 }
 
 Calendar.propTypes = {
-  sets           : PropTypes.string,
+  classNames     : PropTypes.object,
+  date           : PropTypes.oneOfType([PropTypes.object, PropTypes.string, PropTypes.func]),
+  firstDayOfWeek : PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  format         : PropTypes.string.isRequired,
+  link           : PropTypes.oneOfType([PropTypes.shape({
+    endDate      : PropTypes.object,
+    startDate    : PropTypes.object
+  }), PropTypes.bool]),
+  linkCB         : PropTypes.func,
+  maxDate        : PropTypes.oneOfType([PropTypes.object, PropTypes.func, PropTypes.string]),
+  minDate        : PropTypes.oneOfType([PropTypes.object, PropTypes.func, PropTypes.string]),
+  offset         : PropTypes.number,
+  onChange       : PropTypes.func,
+  onInit         : PropTypes.func,
+  onlyClasses    : PropTypes.bool,
   range          : PropTypes.shape({
     startDate    : PropTypes.object,
     endDate      : PropTypes.object
   }),
-  minDate        : PropTypes.oneOfType([PropTypes.object, PropTypes.func, PropTypes.string]),
-  maxDate        : PropTypes.oneOfType([PropTypes.object, PropTypes.func, PropTypes.string]),
-  date           : PropTypes.oneOfType([PropTypes.object, PropTypes.string, PropTypes.func]),
-  format         : PropTypes.string.isRequired,
-  firstDayOfWeek : PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  onChange       : PropTypes.func,
-  onInit         : PropTypes.func,
-  link           : PropTypes.oneOfType([PropTypes.shape({
-    startDate    : PropTypes.object,
-    endDate      : PropTypes.object,
-  }), PropTypes.bool]),
-  linkCB         : PropTypes.func,
-  theme          : PropTypes.object,
-  onlyClasses    : PropTypes.bool,
-  classNames     : PropTypes.object
+  sets           : PropTypes.string,
+  style          : PropTypes.object,
+  theme          : PropTypes.object
 }
 
 export default Calendar;

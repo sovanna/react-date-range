@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-import moment from 'moment';
 import parseInput from './utils/parseInput.js';
 import { defaultClasses } from './styles.js';
 
@@ -18,7 +17,7 @@ class PredefinedRanges extends Component {
 
     this.props.onSelect({
       startDate : parseInput(range['startDate']),
-      endDate   : parseInput(range['endDate']),
+      endDate   : parseInput(range['endDate'])
     }, PredefinedRanges);
   }
 
@@ -34,21 +33,21 @@ class PredefinedRanges extends Component {
 
       const style = {
         ...styles['PredefinedRangesItem'],
-        ...(active ? styles['PredefinedRangesItemActive'] : {}),
+        ...(active ? styles['PredefinedRangesItemActive'] : {})
       };
 
       return (
         <a
-          href='#'
-          key={'range-' + name}
-          className={classes.predefinedRangesItem + (active ? ' active' : '')}
-          style={ onlyClasses ? undefined : style }
-          onClick={this.handleSelect.bind(this, name)}
+            href='#'
+            key={'range-' + name}
+            className={classes.predefinedRangesItem + (active ? ' active' : '')}
+            style={onlyClasses ? undefined : style}
+            onClick={this.handleSelect.bind(this, name)}
         >
           {name}
         </a>
       );
-    }.bind(this));
+    });
   }
 
   render() {
@@ -59,10 +58,10 @@ class PredefinedRanges extends Component {
 
     return (
       <div
-        style={onlyClasses ? undefined : { ...styles['PredefinedRanges'], ...style }}
-        className={ classes.predefinedRanges }
+          style={onlyClasses ? undefined : { ...styles['PredefinedRanges'], ...style }}
+          className={classes.predefinedRanges}
       >
-        { this.renderRangeList(classes) }
+        {this.renderRangeList(classes)}
       </div>
     );
   }
@@ -74,9 +73,13 @@ PredefinedRanges.defaultProps = {
 };
 
 PredefinedRanges.propTypes = {
+  theme       : PropTypes.object,
   ranges      : PropTypes.object.isRequired,
   onlyClasses : PropTypes.bool,
-  classNames  : PropTypes.object
+  classNames  : PropTypes.object,
+  onSelect    : PropTypes.func,
+  range       : PropTypes.object,
+  style       : PropTypes.object
 }
 
 export default PredefinedRanges;

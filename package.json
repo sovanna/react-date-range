@@ -4,9 +4,9 @@
   "description": "A React component for choosing dates and date ranges.",
   "main": "lib/index.js",
   "scripts": {
-    "start-dev": "babel ./src --watch --out-dir ./lib & cd demo && npm install && npm run start-dev",
+    "start-dev": "./node_modules/.bin/babel ./src --watch --out-dir ./lib & cd demo && npm install && npm run start-dev",
     "prebuild": "rm -rf lib/*",
-    "build": "babel ./src --out-dir ./lib",
+    "build": "./node_modules/.bin/babel ./src --out-dir ./lib",
     "prepublish": "npm run build"
   },
   "keywords": [
@@ -31,6 +31,9 @@
     "react": ">=0.13.0"
   },
   "devDependencies": {
-    "babel": "^5.8.23"
+    "babel-cli": "^6.11.4",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-2": "^6.5.0"
   }
 }

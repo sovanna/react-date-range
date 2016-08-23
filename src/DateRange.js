@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-import moment from 'moment';
 import parseInput from './utils/parseInput.js';
 import Calendar from './Calendar.js';
 import PredefinedRanges from './PredefinedRanges.js';
@@ -17,16 +16,37 @@ class DateRange extends Component {
 
     this.state = {
       range     : { startDate, endDate },
-      link      : linkedCalendars && endDate,
+      link      : linkedCalendars && endDate
     }
 
     this.step = 0;
     this.styles = getTheme(theme);
+
+    this.handleSelect = this.handleSelect.bind(this);
+    this.handleLinkChange = this.handleLinkChange.bind(this);
   }
 
   componentDidMount() {
     const { onInit } = this.props;
     onInit && onInit(this.state.range);
+  }
+
+  componentWillReceiveProps(newProps) {
+    // Whenever date props changes, update state with parsed variant
+    if (newProps.startDate || newProps.endDate) {
+      const format       = newProps.format || this.props.format;
+      const startDate    = newProps.startDate   && parseInput(newProps.startDate, format);
+      const endDate      = newProps.endDate     && parseInput(newProps.endDate, format);
+      const oldStartDate = this.props.startDate && parseInput(this.props.startDate, format);
+      const oldEndDate   = this.props.endDate   && parseInput(this.props.endDate, format);
+
+      if (!startDate.isSame(oldStartDate) || !endDate.isSame(oldEndDate)) {
+        this.setRange({
+          startDate: startDate || oldStartDate,
+          endDate: endDate || oldEndDate
+        });
+      }
+    }
   }
 
   orderRange(range) {
@@ -87,24 +107,6 @@ class DateRange extends Component {
     });
   }
 
-  componentWillReceiveProps(newProps) {
-    // Whenever date props changes, update state with parsed variant
-    if (newProps.startDate || newProps.endDate) {
-      const format       = newProps.format || this.props.format;
-      const startDate    = newProps.startDate   && parseInput(newProps.startDate, format);
-      const endDate      = newProps.endDate     && parseInput(newProps.endDate, format);
-      const oldStartDate = this.props.startDate && parseInput(this.props.startDate, format);
-      const oldEndDate   = this.props.endDate   && parseInput(this.props.endDate, format);
-
-      if (!startDate.isSame(oldStartDate) || !endDate.isSame(oldEndDate)) {
-        this.setRange({
-          startDate: startDate || oldStartDate,
-          endDate: endDate || oldEndDate
-        });
-      }
-    }
-  }
-
   render() {
     const { ranges, format, linkedCalendars, style, calendars, firstDayOfWeek, minDate, maxDate, classNames, onlyClasses } = this.props;
     const { range, link } = this.state;
@@ -114,39 +116,41 @@ class DateRange extends Component {
 
     return (
       <div style={onlyClasses ? undefined : { ...styles['DateRange'], ...style }} className={classes.dateRange}>
-        { ranges && (
+        {ranges && (
           <PredefinedRanges
-            format={ format }
-            ranges={ ranges }
-            range={ range }
-            theme={ styles }
-            onSelect={this.handleSelect.bind(this)}
-            onlyClasses={ onlyClasses }
-            classNames={ classes } />
+              format={format}
+              ranges={ranges}
+              range={range}
+              theme={styles}
+              onSelect={this.handleSelect}
+              onlyClasses={onlyClasses}
+              classNames={classes}
+          />
         )}
 
-        {()=>{
+        {(()=>{
           const _calendars = [];
           for (var i = Number(calendars) - 1; i >= 0; i--) {
             _calendars.push(
               <Calendar
-                key={i}
-                offset={ -i }
-                link={ linkedCalendars && link }
-                linkCB={ this.handleLinkChange.bind(this) }
-                range={ range }
-                format={ format }
-                firstDayOfWeek={ firstDayOfWeek }
-                theme={ styles }
-                minDate={ minDate }
-                maxDate={ maxDate }
-		onlyClasses={ onlyClasses }
-                classNames={ classes }
-                onChange={ this.handleSelect.bind(this) }  />
+                  key={i}
+                  offset={-i}
+                  link={linkedCalendars && link}
+                  linkCB={this.handleLinkChange}
+                  range={range}
+                  format={format}
+                  firstDayOfWeek={firstDayOfWeek}
+                  theme={styles}
+                  minDate={minDate}
+                  maxDate={maxDate}
+                  onlyClasses={onlyClasses}
+                  classNames={classes}
+                  onChange={this.handleSelect}
+              />
             );
           }
           return _calendars;
-        }()}
+        })()}
       </div>
     );
   }
@@ -176,7 +180,8 @@ DateRange.propTypes = {
   onInit          : PropTypes.func,
   onChange        : PropTypes.func,
   onlyClasses     : PropTypes.bool,
-  classNames      : PropTypes.object
+  classNames      : PropTypes.object,
+  style           : PropTypes.object
 }
 
 export default DateRange;
