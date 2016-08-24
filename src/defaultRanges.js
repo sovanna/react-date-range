@@ -33,5 +33,23 @@ export default {
     endDate: (now) => {
       return now;
     }
+  },
+
+  'Last month': {
+    startDate: (now) => {
+      return now.startOf('month').add(-1, 'month');
+    },
+    endDate: (now) => {
+      return now.startOf('month').add(-1, 'day');
+    }
+  },
+
+  'This month': {
+    startDate: (now) => {
+      return now.startOf('month');
+    },
+    endDate: (now) => {
+      return now;
+    }
   }
 }
